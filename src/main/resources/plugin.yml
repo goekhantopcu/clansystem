@@ -10,3 +10,6 @@ commands:
   clan:
     aliases:
       - clans
+  cc:
+    aliases:
+      - clanchat

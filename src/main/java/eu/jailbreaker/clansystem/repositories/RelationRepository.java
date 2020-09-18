@@ -25,9 +25,9 @@ public final class RelationRepository {
     public CompletableFuture<Void> createTable() {
         return this.connection.update(
                 "CREATE TABLE IF NOT EXISTS clan_player_relation ( " +
+                        "relationId INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
                         "clanId INT(11) NOT NULL, " +
-                        "playerId INT(11) NOT NULL, " +
-                        "PRIMARY KEY(clanId, playerId) " +
+                        "playerId INT(11) NOT NULL " +
                         ")"
         );
     }

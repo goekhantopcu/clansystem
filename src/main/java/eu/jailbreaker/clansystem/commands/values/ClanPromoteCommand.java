@@ -1,26 +1,14 @@
 package eu.jailbreaker.clansystem.commands.values;
 
-import com.google.inject.Inject;
 import eu.jailbreaker.clansystem.commands.ClanCommand;
 import eu.jailbreaker.clansystem.entities.Clan;
 import eu.jailbreaker.clansystem.entities.ClanPlayer;
 import eu.jailbreaker.clansystem.entities.ClanRole;
-import eu.jailbreaker.clansystem.repositories.ClanRepository;
-import eu.jailbreaker.clansystem.repositories.PlayerRepository;
-import eu.jailbreaker.clansystem.repositories.RelationRepository;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public final class ClanPromoteCommand extends ClanCommand {
-
-    @Inject
-    private ClanRepository clanRepository;
-
-    @Inject
-    private PlayerRepository playerRepository;
-
-    @Inject
-    private RelationRepository relationRepository;
 
     public ClanPromoteCommand() {
         super("promote");
@@ -28,32 +16,48 @@ public final class ClanPromoteCommand extends ClanCommand {
 
     @Override
     public void execute(Player player, String... args) {
+        if (args.length != 1) {
+            this.utils.sendMessage(player, "Verwende: /clan promote <Spieler>");
+            return;
+        }
+
+        if (args[0].equalsIgnoreCase(player.getName())) {
+            this.utils.sendMessage(player, "§cDu darfst nicht mit dir selbst interagieren!");
+            return;
+        }
+
         final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
         if (clanPlayer == null) {
-            player.sendMessage("§cEin Fehler ist aufgetreten!");
+            this.utils.sendMessage(player, "§cEin Fehler ist aufgetreten!");
             return;
         }
 
         final Clan clan = this.relationRepository.findClanByPlayer(clanPlayer).join();
         if (clan == null) {
-            player.sendMessage("§cDu hast keinen Clan");
+            this.utils.sendMessage(player, "§cDu hast keinen Clan");
             return;
         }
 
         if (clanPlayer.getRole() != ClanRole.OWNER) {
-            player.sendMessage("§cDu bist nicht der Inhaber des Clans");
+            this.utils.sendMessage(player, "§cDu bist nicht der Inhaber des Clans");
             return;
         }
 
-        final ClanPlayer targetPlayer = this.playerRepository.find(Bukkit.getPlayerExact(args[0]).getUniqueId()).join();
+        final UUID uniqueId = this.utils.getUniqueId(args[0]);
+        if (uniqueId == null) {
+            this.utils.sendMessage(player, "§cDieser Spieler existiert nicht!");
+            return;
+        }
+
+        final ClanPlayer targetPlayer = this.playerRepository.find(uniqueId).join();
         if (targetPlayer == null) {
-            player.sendMessage("§cDieser Spieler existiert nicht!");
+            this.utils.sendMessage(player, "§cDieser Spieler existiert nicht!");
             return;
         }
 
         final Clan targetClan = this.relationRepository.findClanByPlayer(targetPlayer).join();
         if (!clan.equals(targetClan)) {
-            player.sendMessage("§cDieser Nutzer ist nicht in deinem Clan!");
+            this.utils.sendMessage(player, "§cDieser Nutzer ist nicht in deinem Clan!");
             return;
         }
 
@@ -61,8 +65,8 @@ public final class ClanPromoteCommand extends ClanCommand {
                 clanPlayer,
                 targetPlayer.getRole() == ClanRole.USER ? ClanRole.MODERATOR : ClanRole.OWNER
         ).whenComplete((unused, throwable) -> {
-            Bukkit.getPlayerExact(args[0]).sendMessage("§aDu wurdest befördert");
-            player.sendMessage("§aDu hast " + args[0] + " befördert");
+            this.utils.sendMessage(args[0], "§aDu wurdest befördert");
+            this.utils.sendMessage(player, "§aDu hast " + args[0] + " befördert");
         });
     }
 }

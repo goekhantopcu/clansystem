@@ -5,6 +5,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import eu.jailbreaker.clansystem.ClanSystem;
 import eu.jailbreaker.clansystem.utils.Configuration;
+import eu.jailbreaker.clansystem.utils.player.CloudNetPlayerUtilsImpl;
+import eu.jailbreaker.clansystem.utils.player.PlayerUtils;
+import eu.jailbreaker.clansystem.utils.player.SimplePlayerUtilsImpl;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -30,6 +33,11 @@ public final class ClanModule extends AbstractModule {
         messagesConfig.save();
         databaseConfig.save();
 
+        if (this.plugin.getServer().getPluginManager().isPluginEnabled("CloudNetAPI")) {
+            bind(PlayerUtils.class).to(CloudNetPlayerUtilsImpl.class);
+        } else {
+            bind(PlayerUtils.class).to(SimplePlayerUtilsImpl.class);
+        }
 
         bind(JavaPlugin.class).toInstance(this.plugin);
         bind(ClanSystem.class).toInstance(this.plugin);

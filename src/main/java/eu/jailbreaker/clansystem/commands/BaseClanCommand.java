@@ -1,6 +1,7 @@
 package eu.jailbreaker.clansystem.commands;
 
 import com.google.inject.Inject;
+import eu.jailbreaker.clansystem.utils.player.PlayerUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,6 +16,9 @@ public final class BaseClanCommand implements CommandExecutor {
     @Inject
     private ClanHelper helper;
 
+    @Inject
+    private PlayerUtils utils;
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
@@ -23,10 +27,15 @@ public final class BaseClanCommand implements CommandExecutor {
         }
 
         final Player player = (Player) sender;
+        if (args.length == 0) {
+            this.helper.find("help").ifPresent(subCommand -> subCommand.execute(player));
+            return true;
+        }
+
         CompletableFuture.runAsync(() -> {
             final Optional<ClanCommand> optional = this.helper.find(args[0]);
             if (!optional.isPresent()) {
-                player.sendMessage("§cUnbekannter Befehl");
+                this.helper.find("help").ifPresent(subCommand -> subCommand.execute(player));
                 return;
             }
             String[] arguments = {};

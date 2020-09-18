@@ -5,6 +5,7 @@ import com.google.common.io.Closer;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import eu.jailbreaker.clansystem.commands.BaseClanCommand;
+import eu.jailbreaker.clansystem.commands.ClanChatCommand;
 import eu.jailbreaker.clansystem.commands.ClanHelper;
 import eu.jailbreaker.clansystem.db.ClanModule;
 import eu.jailbreaker.clansystem.entities.Clan;
@@ -16,6 +17,7 @@ import eu.jailbreaker.clansystem.repositories.InviteRepository;
 import eu.jailbreaker.clansystem.repositories.PlayerRepository;
 import eu.jailbreaker.clansystem.repositories.RelationRepository;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -26,33 +28,33 @@ import java.util.UUID;
 @Getter
 public final class ClanSystem extends JavaPlugin {
 
-    private Closer closer;
-
     private final Map<UUID, String> listNames = Maps.newHashMap();
-    private Injector injector;
+
+    private Closer closer;
 
     @Override
     public void onEnable() {
         this.getDataFolder().mkdirs();
 
-        this.injector = Guice.createInjector(new ClanModule(this));
+        final Injector injector = Guice.createInjector(new ClanModule(this));
 
-        this.closer = this.injector.getInstance(Closer.class);
-        this.injector.getInstance(ClanHelper.class).loadCommands(this.injector);
+        this.closer = injector.getInstance(Closer.class);
+        injector.getInstance(ClanHelper.class).loadCommands(injector);
 
-        this.injector.getInstance(ClanRepository.class).createTable();
-        this.injector.getInstance(PlayerRepository.class).createTable();
-        this.injector.getInstance(InviteRepository.class).createTable();
-        this.injector.getInstance(RelationRepository.class).createTable();
+        injector.getInstance(ClanRepository.class).createTable();
+        injector.getInstance(PlayerRepository.class).createTable();
+        injector.getInstance(InviteRepository.class).createTable();
+        injector.getInstance(RelationRepository.class).createTable();
 
-        this.getCommand("clan").setExecutor(this.injector.getInstance(BaseClanCommand.class));
+        this.getCommand("cc").setExecutor(injector.getInstance(ClanChatCommand.class));
+        this.getCommand("clan").setExecutor(injector.getInstance(BaseClanCommand.class));
 
         this.getServer().getPluginManager().registerEvents(
-                this.injector.getInstance(ClanSetTagListener.class),
+                injector.getInstance(ClanSetTagListener.class),
                 this
         );
         this.getServer().getPluginManager().registerEvents(
-                this.injector.getInstance(PlayerLoginListener.class),
+                injector.getInstance(PlayerLoginListener.class),
                 this
         );
     }
@@ -63,6 +65,18 @@ public final class ClanSystem extends JavaPlugin {
             this.closer.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void callTagEvent(UUID uniqueId) {
+        this.callTagEvent(uniqueId, null);
+    }
+
+    public void callTagEvent(UUID uniqueId, Clan clan) {
+        if (this.getServer().isPrimaryThread()) {
+            this.callTagEvent(Bukkit.getPlayer(uniqueId));
+        } else {
+            this.getServer().getScheduler().runTask(this, () -> this.callTagEvent(Bukkit.getPlayer(uniqueId)));
         }
     }
 

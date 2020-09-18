@@ -5,16 +5,16 @@ import eu.jailbreaker.clansystem.entities.Clan;
 import eu.jailbreaker.clansystem.entities.ClanPlayer;
 import org.bukkit.entity.Player;
 
-public final class ClanRenameCommand extends ClanCommand {
+public final class ClanInfoCommand extends ClanCommand {
 
-    public ClanRenameCommand() {
-        super("rename");
+    public ClanInfoCommand() {
+        super("info");
     }
 
     @Override
     public void execute(Player player, String... args) {
-        if (args.length != 1) {
-            this.utils.sendMessage(player, "Verwende: /clan rename <Neuer Name>");
+        if (args.length != 0) {
+            this.utils.sendMessage(player, "Verwende: /clan info");
             return;
         }
 
@@ -30,13 +30,9 @@ public final class ClanRenameCommand extends ClanCommand {
             return;
         }
 
-        if (!clan.getCreator().equals(clanPlayer.getPlayerId())) {
-            this.utils.sendMessage(player, "§cDu bist nicht der ClanInhaber");
-            return;
-        }
-
-        this.clanRepository.rename(clan, args[0]).whenComplete(
-                (unused, throwable) -> this.utils.sendMessage(player, "§7Dein neuer Clanname: §e" + args[0])
-        );
+        this.utils.sendMessage(player, "Clanname: " + clan.getName());
+        this.utils.sendMessage(player, "Tag: §7[§f" + clan.getTag() + "§7]");
+        this.utils.sendMessage(player, "Ersteller: §e" + this.playerRepository.find(clan.getCreator()).join().getUniqueId());
+        this.utils.sendMessage(player, "Erstellt am: " + clan.getTimestamp().toString());
     }
 }

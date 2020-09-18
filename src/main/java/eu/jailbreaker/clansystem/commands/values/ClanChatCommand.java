@@ -5,16 +5,19 @@ import eu.jailbreaker.clansystem.entities.Clan;
 import eu.jailbreaker.clansystem.entities.ClanPlayer;
 import org.bukkit.entity.Player;
 
-public final class ClanRenameCommand extends ClanCommand {
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-    public ClanRenameCommand() {
-        super("rename");
+public final class ClanChatCommand extends ClanCommand {
+
+    public ClanChatCommand() {
+        super("chat");
     }
 
     @Override
     public void execute(Player player, String... args) {
-        if (args.length != 1) {
-            this.utils.sendMessage(player, "Verwende: /clan rename <Neuer Name>");
+        if (args.length == 0) {
+            this.utils.sendMessage(player, "Verwende: /cc <Nachricht>");
             return;
         }
 
@@ -30,13 +33,17 @@ public final class ClanRenameCommand extends ClanCommand {
             return;
         }
 
-        if (!clan.getCreator().equals(clanPlayer.getPlayerId())) {
-            this.utils.sendMessage(player, "§cDu bist nicht der ClanInhaber");
-            return;
+        final StringBuilder builder = new StringBuilder();
+        for (String arg : args) {
+            if (builder.length() != 0) {
+                builder.append(" ");
+            }
+            builder.append(arg);
         }
 
-        this.clanRepository.rename(clan, args[0]).whenComplete(
-                (unused, throwable) -> this.utils.sendMessage(player, "§7Dein neuer Clanname: §e" + args[0])
-        );
+        final List<ClanPlayer> players = this.relationRepository.findPlayersByClan(clan).join();
+        players.forEach(member -> CompletableFuture.runAsync(() ->
+                this.utils.sendMessage(member.getUniqueId(), "§7[§cClan§7] §8>> §e" + builder.toString())
+        ));
     }
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.util.Objects;
 
 @Getter
@@ -15,11 +16,13 @@ public final class Clan {
     private final Integer clanId;
     private final Integer creator;
 
+    private final Timestamp timestamp;
+
     private String name;
     private String tag;
 
-    public static Clan create(Integer clanId, Integer creator, String name, String tag) {
-        return new Clan(clanId, creator, name, tag);
+    public static Clan create(Integer clanId, Integer creator, Timestamp timestamp, String name, String tag) {
+        return new Clan(clanId, creator, timestamp, name, tag);
     }
 
     @Override

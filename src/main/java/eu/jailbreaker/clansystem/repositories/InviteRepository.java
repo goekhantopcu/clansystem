@@ -41,17 +41,28 @@ public final class InviteRepository {
     }
 
     public CompletableFuture<Clan> accept(String name, ClanPlayer clanPlayer) {
-        return this.clanRepository.find(name).whenComplete(
-                (clan, throwable) -> this.playerRepository.setClan(clanPlayer, clan, ClanRole.USER)
-        );
+        return this.clanRepository.find(name).whenComplete((clan, throwable) -> {
+            if (clan != null) {
+                this.playerRepository.setClan(clanPlayer, clan, ClanRole.USER);
+                this.removeInvitation(clan, clanPlayer);
+            }
+        });
     }
 
-    public void deny(String name, ClanPlayer clanPlayer) {
-        this.clanRepository.find(name).whenComplete((clan, throwable) -> this.connection.update(
+    public CompletableFuture<Clan> deny(String name, ClanPlayer clanPlayer) {
+        return this.clanRepository.find(name).whenComplete((clan, throwable) -> {
+            if (clan != null) {
+                this.removeInvitation(clan, clanPlayer);
+            }
+        });
+    }
+
+    private CompletableFuture<Void> removeInvitation(Clan clan, ClanPlayer clanPlayer) {
+        return this.connection.update(
                 "DELETE FROM clan_invitations WHERE clanId=? AND invitedId=?",
                 clan.getClanId(),
                 clanPlayer.getPlayerId()
-        ));
+        );
     }
 
     public CompletableFuture<List<ClanInvite>> findInvitationsByPlayer(ClanPlayer clanPlayer) {
