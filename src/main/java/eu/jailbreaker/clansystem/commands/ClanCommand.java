@@ -2,6 +2,7 @@ package eu.jailbreaker.clansystem.commands;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import eu.jailbreaker.clansystem.ClanSystem;
 import eu.jailbreaker.clansystem.utils.Configuration;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,9 @@ public abstract class ClanCommand {
     @Inject
     @Named("messages")
     protected Configuration messages;
+
+    @Inject
+    protected ClanSystem plugin;
 
     public ClanCommand(String name) {
         this(name, Collections.emptyList(), null);

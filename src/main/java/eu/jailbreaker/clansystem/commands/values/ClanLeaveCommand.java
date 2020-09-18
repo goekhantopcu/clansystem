@@ -55,6 +55,8 @@ public final class ClanLeaveCommand extends ClanCommand {
             final List<ClanPlayer> players = this.relationRepository.findPlayersByClan(clan).join();
             players.forEach(targetPlayer -> Bukkit.getPlayer(targetPlayer.getUniqueId()).sendMessage("§c" + player.getName() + " hat den Clan verlassen!"));
             player.sendMessage("§cDu hast den Clan verlassen!");
+
+            this.plugin.callTagEvent(player);
         });
     }
 }

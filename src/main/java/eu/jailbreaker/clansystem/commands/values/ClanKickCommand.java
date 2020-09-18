@@ -65,6 +65,8 @@ public final class ClanKickCommand extends ClanCommand {
         this.relationRepository.delete(clan, targetPlayer).whenComplete((unused, throwable) -> {
             Bukkit.getPlayerExact(args[0]).sendMessage("§cDu wurdest aus dem Clan " + clan.getName() + " geworfen!");
             player.sendMessage("§cDu hast §4" + args[0] + " §caus dem Clan geschmissen!");
+
+            this.plugin.callTagEvent(Bukkit.getPlayerExact(args[0]));
         });
     }
 }

@@ -54,6 +54,8 @@ public final class ClanCreateCommand extends ClanCommand {
             player.sendMessage("§7Du hast einen Clan erstellt");
             player.sendMessage("§7Name: §e" + clan.getName());
             player.sendMessage("§7Tag: §b" + clan.getTag());
+
+            this.plugin.callTagEvent(player, clan);
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }

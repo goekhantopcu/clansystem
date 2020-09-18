@@ -30,6 +30,7 @@ public final class ClanModule extends AbstractModule {
         messagesConfig.save();
         databaseConfig.save();
 
+
         bind(JavaPlugin.class).toInstance(this.plugin);
         bind(ClanSystem.class).toInstance(this.plugin);
         bind(Closer.class).toInstance(Closer.create());
