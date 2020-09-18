@@ -1,11 +1,9 @@
 package eu.jailbreaker.clansystem.utils;
 
 import com.google.gson.*;
+import lombok.Cleanup;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -53,10 +51,15 @@ public class Configuration {
     public void save() {
         try {
             if (Files.notExists(this.path)) {
-                Files.createFile(this.path);
-            }
-            try (final ByteArrayInputStream in = new ByteArrayInputStream(GSON.toJson(this.root).getBytes())) {
-                Files.copy(in, this.path, StandardCopyOption.REPLACE_EXISTING);
+                @Cleanup
+                InputStream in = this.getClass().getClassLoader().getResourceAsStream("messages.json");
+                if (in == null) {
+                    in = new ByteArrayInputStream("{}".getBytes());
+                }
+                Files.copy(
+                        in,
+                        this.path, StandardCopyOption.REPLACE_EXISTING
+                );
             }
         } catch (Throwable throwable) {
             throwable.printStackTrace();

@@ -17,19 +17,19 @@ public final class ClanChatCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length == 0) {
-            this.utils.sendMessage(player, "Verwende: /cc <Nachricht>");
+            this.messages.commandUsage(player, "chat <Nachricht>");
             return;
         }
 
         final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
         if (clanPlayer == null) {
-            this.utils.sendMessage(player, "§cEin Fehler ist aufgetreten!");
+            this.messages.sendMessage(player, "error_occured");
             return;
         }
 
         final Clan clan = this.relationRepository.findClanByPlayer(clanPlayer).join();
         if (clan == null) {
-            this.utils.sendMessage(player, "§cDu bist in keinem Clan!");
+            this.messages.sendMessage(player, "not_in_clan");
             return;
         }
 
@@ -43,7 +43,7 @@ public final class ClanChatCommand extends ClanCommand {
 
         final List<ClanPlayer> players = this.relationRepository.findPlayersByClan(clan).join();
         players.forEach(member -> CompletableFuture.runAsync(() ->
-                this.utils.sendMessage(member.getUniqueId(), "§7[§cClan§7] §8>> §e" + builder.toString())
+                this.messages.sendMessage(member.getUniqueId(), "clan_chat_format", player.getName(), builder.toString())
         ));
     }
 }

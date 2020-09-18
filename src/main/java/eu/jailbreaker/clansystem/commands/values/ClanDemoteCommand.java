@@ -1,14 +1,19 @@
 package eu.jailbreaker.clansystem.commands.values;
 
+import com.google.inject.Inject;
 import eu.jailbreaker.clansystem.commands.ClanCommand;
 import eu.jailbreaker.clansystem.entities.Clan;
 import eu.jailbreaker.clansystem.entities.ClanPlayer;
 import eu.jailbreaker.clansystem.entities.ClanRole;
+import eu.jailbreaker.clansystem.utils.player.PlayerUtils;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
 public final class ClanDemoteCommand extends ClanCommand {
+
+    @Inject
+    private PlayerUtils utils;
 
     public ClanDemoteCommand() {
         super("demote");
@@ -17,66 +22,66 @@ public final class ClanDemoteCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 1) {
-            this.utils.sendMessage(player, "Verwende: /clan demote <Spieler>");
+            this.messages.commandUsage(player, "demote <Spieler>");
             return;
         }
 
         if (args[0].equalsIgnoreCase(player.getName())) {
-            this.utils.sendMessage(player, "§cDu darfst nicht mit dir selbst interagieren!");
+            this.messages.sendMessage(player, "cant_interact_self");
             return;
         }
 
         final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
         if (clanPlayer == null) {
-            this.utils.sendMessage(player, "§cEin Fehler ist aufgetreten!");
+            this.messages.sendMessage(player, "error_occured");
             return;
         }
 
         final Clan clan = this.relationRepository.findClanByPlayer(clanPlayer).join();
         if (clan == null) {
-            this.utils.sendMessage(player, "§cDu bist in keinem Clan!");
+            this.messages.sendMessage(player, "not_in_clan");
             return;
         }
 
         if (clanPlayer.getRole() != ClanRole.OWNER) {
-            this.utils.sendMessage(player, "§cDu hast keine Rechte um diese Aktion durchzuführen!");
+            this.messages.sendMessage(player, "not_permitted");
             return;
         }
 
         final UUID uniqueId = this.utils.getUniqueId(args[0]);
         if (uniqueId == null) {
-            this.utils.sendMessage(player, "§cDieser Spieler existiert nicht!");
+            this.messages.sendMessage(player, "player_does_not_exist");
             return;
         }
 
         final ClanPlayer targetPlayer = this.playerRepository.find(uniqueId).join();
         if (targetPlayer == null) {
-            this.utils.sendMessage(player, "§cDieser Spieler existiert nicht!");
+            this.messages.sendMessage(player, "player_does_not_exist");
             return;
         }
 
         final Clan targetClan = this.relationRepository.findClanByPlayer(targetPlayer).join();
         if (!clan.equals(targetClan)) {
-            this.utils.sendMessage(player, "§cDieser Spieler ist nicht in deinem Clan!");
+            this.messages.sendMessage(player, "target_not_in_same_clan");
             return;
         }
 
         if (targetPlayer.getPlayerId().equals(clan.getCreator())) {
-            this.utils.sendMessage(player, "§cDer Claninhaber darf nicht degradiert werden!");
+            this.messages.sendMessage(player, "cant_degradate_owner");
             return;
         }
 
         if (targetPlayer.getRole() == ClanRole.OWNER && !clan.getCreator().equals(clanPlayer.getPlayerId())) {
-            this.utils.sendMessage(player, "§cDu darfst diesen Spieler nicht degradieren!");
+            this.messages.sendMessage(player, "cant_degradate_owner");
             return;
         }
 
         this.playerRepository.setRole(
                 targetPlayer,
-                targetPlayer.getRole() == ClanRole.OWNER ? ClanRole.MODERATOR : ClanRole.USER
+                ClanRole.USER
         ).whenComplete((unused, throwable) -> {
-            this.utils.sendMessage(args[0], "§cDu wurdest degradiert");
-            this.utils.sendMessage(player, "§cDu hast " + args[0] + " degradiert");
+            this.messages.sendMessage(args[0], "self_degradated");
+            this.messages.sendMessage(player, "target_degradated", args[0]);
         });
     }
 }

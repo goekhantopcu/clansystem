@@ -15,19 +15,19 @@ public final class ClanCreateCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 2) {
-            this.utils.sendMessage(player, "Verwende: /clan create <Name> <Tag>");
+            this.messages.commandUsage(player, "create <Name> <Tag>");
             return;
         }
 
         final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
         if (clanPlayer == null) {
-            this.utils.sendMessage(player, "§cEin Fehler ist aufgetreten!");
+            this.messages.sendMessage(player, "error_occured");
             return;
         }
 
         Clan clan = this.relationRepository.findClanByPlayer(clanPlayer).join();
         if (clan != null) {
-            this.utils.sendMessage(player, "§cDu hast bereits einen Clan [" + clan.getName() + "]");
+            this.messages.sendMessage(player, "already_have_clan", clan.getName());
             return;
         }
 
@@ -36,16 +36,12 @@ public final class ClanCreateCommand extends ClanCommand {
 
         clan = this.clanRepository.create(clanPlayer, name, tag).join();
         if (clan == null) {
-            this.utils.sendMessage(player, "§cEin Fehler ist aufgetreten, konnte keinen Clan erstellen!");
+            this.messages.sendMessage(player, "cant_create_clan");
             return;
         }
 
         this.playerRepository.setClan(clanPlayer, clan, ClanRole.OWNER);
-
-        this.utils.sendMessage(player, "§7Du hast einen Clan erstellt");
-        this.utils.sendMessage(player, "§7Name: §e" + clan.getName());
-        this.utils.sendMessage(player, "§7Tag: §b" + clan.getTag());
-
+        this.messages.sendMessage(player, "clan_created", clan.getName(), clan.getTag());
         this.plugin.callTagEvent(player, clan);
     }
 }

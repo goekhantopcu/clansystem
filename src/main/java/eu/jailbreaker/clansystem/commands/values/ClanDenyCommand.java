@@ -13,22 +13,22 @@ public final class ClanDenyCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 1) {
-            this.utils.sendMessage(player, "Verwende: /clan deny <Clan-Name>");
+            this.messages.commandUsage(player, "deny <Clan-Name>");
             return;
         }
 
         final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
         if (clanPlayer == null) {
-            this.utils.sendMessage(player, "§cEin Fehler ist aufgetreten!");
+            this.messages.sendMessage(player, "error_occured");
             return;
         }
 
         this.inviteRepository.deny(args[0], clanPlayer).whenComplete((clan, throwable) -> {
             if (clan == null) {
-                this.utils.sendMessage(player, "§cDu hast keine Einladung von diesem Clan erhalten!");
+                this.messages.sendMessage(player, "no_invitation_received");
                 return;
             }
-            this.utils.sendMessage(player, "§aDu hast die Anfrage des Clans " + clan.getName() + " abgelehnt!");
+            this.messages.sendMessage(player, "denied_invitation", clan.getName());
         });
     }
 }

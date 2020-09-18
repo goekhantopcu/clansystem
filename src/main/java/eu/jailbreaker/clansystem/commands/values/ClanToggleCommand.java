@@ -13,22 +13,22 @@ public final class ClanToggleCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 0) {
-            this.utils.sendMessage(player, "Verwende: /clan toggle");
+            this.messages.commandUsage(player, "toggle");
             return;
         }
 
         final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
         if (clanPlayer == null) {
-            this.utils.sendMessage(player, "§cEin Fehler ist aufgetreten!");
+            this.messages.sendMessage(player, "error_occured");
             return;
         }
 
         this.playerRepository.setReceiveInvitations(clanPlayer).whenComplete((unused, throwable) -> {
-            this.utils.sendMessage(
+            this.messages.sendMessage(
                     player,
                     clanPlayer.isReceiveInvitations() ?
-                            "§cDu hast die Anfragen deaktiviert!" :
-                            "§aDu hast die Anfragen aktiviert!"
+                            "invitations_deactivated" :
+                            "invitations_activated"
             );
         });
     }

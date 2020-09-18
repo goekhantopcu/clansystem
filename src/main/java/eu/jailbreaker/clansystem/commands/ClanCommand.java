@@ -1,14 +1,12 @@
 package eu.jailbreaker.clansystem.commands;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import eu.jailbreaker.clansystem.ClanSystem;
 import eu.jailbreaker.clansystem.repositories.ClanRepository;
 import eu.jailbreaker.clansystem.repositories.InviteRepository;
 import eu.jailbreaker.clansystem.repositories.PlayerRepository;
 import eu.jailbreaker.clansystem.repositories.RelationRepository;
-import eu.jailbreaker.clansystem.utils.Configuration;
-import eu.jailbreaker.clansystem.utils.player.PlayerUtils;
+import eu.jailbreaker.clansystem.utils.Messages;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
@@ -29,10 +27,6 @@ public abstract class ClanCommand {
     private final String permission;
 
     @Inject
-    @Named("messages")
-    protected Configuration messages;
-
-    @Inject
     protected ClanSystem plugin;
 
     @Inject
@@ -48,7 +42,7 @@ public abstract class ClanCommand {
     protected InviteRepository inviteRepository;
 
     @Inject
-    protected PlayerUtils utils;
+    protected Messages messages;
 
     public ClanCommand(String name) {
         this(name, Collections.emptyList(), null);

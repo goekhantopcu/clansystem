@@ -17,33 +17,33 @@ public final class ClanLeaveCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 0) {
-            this.utils.sendMessage(player, "Verwende: /clan leave");
+            this.messages.commandUsage(player, "leave");
             return;
         }
 
         final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
         if (clanPlayer == null) {
-            this.utils.sendMessage(player, "§cEin Fehler ist aufgetreten!");
+            this.messages.sendMessage(player, "error_occured");
             return;
         }
 
         final Clan clan = this.relationRepository.findClanByPlayer(clanPlayer).join();
         if (clan == null) {
-            this.utils.sendMessage(player, "§cDu bist in keinem Clan!");
+            this.messages.sendMessage(player, "not_in_clan");
             return;
         }
 
         if (clanPlayer.getRole() == ClanRole.OWNER && clan.getCreator().equals(clanPlayer.getPlayerId())) {
-            this.utils.sendMessage(player, "§cDu kannst deinen Clan nicht verlassen, du musst ihn mit /clan delete löschen!");
+            this.messages.sendMessage(player, "cant_leave_as_owner");
             return;
         }
 
         this.relationRepository.delete(clan, clanPlayer).whenCompleteAsync((unused, throwable) -> {
             final List<ClanPlayer> players = this.relationRepository.findPlayersByClan(clan).join();
             players.forEach(member ->
-                    this.utils.sendMessage(member.getUniqueId(), "§c" + player.getName() + " hat den Clan verlassen!")
+                    this.messages.sendMessage(member.getUniqueId(), "user_left", player.getName())
             );
-            this.utils.sendMessage(player, "§cDu hast den Clan verlassen!");
+            this.messages.sendMessage(player, "clan_left");
 
             this.plugin.callTagEvent(player);
         });

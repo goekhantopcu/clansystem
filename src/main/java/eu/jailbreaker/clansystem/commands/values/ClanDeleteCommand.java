@@ -18,30 +18,30 @@ public final class ClanDeleteCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 0) {
-            this.utils.sendMessage(player, "Verwende: /clan delete");
+            this.messages.commandUsage(player, "delete");
             return;
         }
 
         final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
         if (clanPlayer == null) {
-            this.utils.sendMessage(player, "§cEin Fehler ist aufgetreten!");
+            this.messages.sendMessage(player, "error_occured");
             return;
         }
 
         final Clan clan = this.relationRepository.findClanByPlayer(clanPlayer).join();
         if (clan == null) {
-            this.utils.sendMessage(player, "§cDu bist in keinem Clan");
+            this.messages.sendMessage(player, "not_in_clan");
             return;
         }
 
         if (clanPlayer.getRole() != ClanRole.OWNER && !clan.getCreator().equals(clanPlayer.getPlayerId())) {
-            this.utils.sendMessage(player, "§cNur der Claninhaber kann den Clan löschen!");
+            this.messages.sendMessage(player, "only_owner_can_delete");
             return;
         }
 
         final List<ClanPlayer> clanPlayers = this.relationRepository.findPlayersByClan(clan).join();
         this.clanRepository.delete(clan).whenComplete((unused, throwable) -> clanPlayers.forEach(member -> CompletableFuture.runAsync(() -> {
-            this.utils.sendMessage(member.getUniqueId(), "§cDein Clan hat sich aufgelöst!");
+            this.messages.sendMessage(member.getUniqueId(), "clan_deleted");
             this.playerRepository.setRole(member, ClanRole.USER);
             this.plugin.callTagEvent(member.getUniqueId());
         })));

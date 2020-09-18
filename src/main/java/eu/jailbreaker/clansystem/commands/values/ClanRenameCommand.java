@@ -14,29 +14,29 @@ public final class ClanRenameCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 1) {
-            this.utils.sendMessage(player, "Verwende: /clan rename <Neuer Name>");
+            this.messages.commandUsage(player, "rename <Name>");
             return;
         }
 
         final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
         if (clanPlayer == null) {
-            this.utils.sendMessage(player, "§cEin Fehler ist aufgetreten!");
+            this.messages.sendMessage(player, "error_occured");
             return;
         }
 
         final Clan clan = this.relationRepository.findClanByPlayer(clanPlayer).join();
         if (clan == null) {
-            this.utils.sendMessage(player, "§cDu bist in keinem Clan!");
+            this.messages.sendMessage(player, "not_in_clan");
             return;
         }
 
         if (!clan.getCreator().equals(clanPlayer.getPlayerId())) {
-            this.utils.sendMessage(player, "§cDu bist nicht der ClanInhaber");
+            this.messages.sendMessage(player, "not_permitted");
             return;
         }
 
         this.clanRepository.rename(clan, args[0]).whenComplete(
-                (unused, throwable) -> this.utils.sendMessage(player, "§7Dein neuer Clanname: §e" + args[0])
+                (unused, throwable) -> this.messages.sendMessage(player, "changed_clan_name", args[0])
         );
     }
 }
