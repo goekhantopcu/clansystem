@@ -72,7 +72,7 @@ public final class ClanKickCommand extends ClanCommand {
         }
 
         this.relationRepository.delete(clan, targetPlayer).whenComplete((unused, throwable) -> {
-            this.messages.sendMessage(args[0], "got_kicked", clan.getName());
+            this.messages.sendMessage(args[0], "got_kicked", clan.getDisplayName());
             this.messages.sendMessage(player, "kicked_player", args[0]);
             this.plugin.callTagEvent(uniqueId);
         });

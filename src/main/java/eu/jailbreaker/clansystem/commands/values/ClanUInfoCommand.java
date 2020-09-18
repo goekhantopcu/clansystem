@@ -4,12 +4,18 @@ import com.google.inject.Inject;
 import eu.jailbreaker.clansystem.commands.ClanCommand;
 import eu.jailbreaker.clansystem.entities.Clan;
 import eu.jailbreaker.clansystem.entities.ClanPlayer;
+import eu.jailbreaker.clansystem.entities.ClanRole;
 import eu.jailbreaker.clansystem.utils.player.PlayerUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 public final class ClanUInfoCommand extends ClanCommand {
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
     @Inject
     private PlayerUtils utils;
@@ -43,9 +49,16 @@ public final class ClanUInfoCommand extends ClanCommand {
             return;
         }
 
-        this.messages.sendMessage(player, "Clanname: " + clan.getName());
-        this.messages.sendMessage(player, "Tag: §7[§f" + clan.getTag() + "§7]");
-        this.messages.sendMessage(player, "Ersteller: §e" + this.playerRepository.find(clan.getCreator()).join().getUniqueId());
-        this.messages.sendMessage(player, "Erstellt am: " + clan.getTimestamp().toString());
+        final List<ClanPlayer> players = this.relationRepository.findPlayersByClan(clan).join();
+        this.messages.sendMessage(
+                player,
+                "clan_info",
+                clan.getDisplayName(),
+                clan.getDisplayTag(),
+                players.size(),
+                this.messages.accumulateClanMembers(players, ClanRole.OWNER, ChatColor.DARK_RED),
+                this.messages.accumulateClanMembers(players, ClanRole.MODERATOR, ChatColor.RED),
+                this.messages.accumulateClanMembers(players, ClanRole.USER, ChatColor.GRAY)
+        );
     }
 }

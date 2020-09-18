@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.ChatColor;
 
 import java.sql.Timestamp;
 import java.util.Objects;
@@ -20,9 +21,18 @@ public final class Clan {
 
     private String name;
     private String tag;
+    private ChatColor color;
 
-    public static Clan create(Integer clanId, Integer creator, Timestamp timestamp, String name, String tag) {
-        return new Clan(clanId, creator, timestamp, name, tag);
+    public static Clan create(Integer clanId, Integer creator, Timestamp timestamp, String name, String tag, ChatColor color) {
+        return new Clan(clanId, creator, timestamp, name, tag, color);
+    }
+
+    public String getDisplayTag() {
+        return this.color.toString() + this.tag;
+    }
+
+    public String getDisplayName() {
+        return this.color.toString() + this.name;
     }
 
     @Override

@@ -84,7 +84,7 @@ public final class ClanInviteCommand extends ClanCommand {
         }
 
         this.inviteRepository.create(clan, targetPlayer).whenComplete((unused, throwable) -> {
-            this.messages.sendMessage(args[0], "received_invitation", clan.getName());
+            this.messages.sendMessage(args[0], "received_invitation", clan.getDisplayName());
             this.messages.sendMessage(player, "invited_player", args[0]);
         });
     }

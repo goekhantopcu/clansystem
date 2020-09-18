@@ -5,6 +5,7 @@ import com.google.inject.Singleton;
 import eu.jailbreaker.clansystem.db.DatabaseConnection;
 import eu.jailbreaker.clansystem.entities.Clan;
 import eu.jailbreaker.clansystem.entities.ClanPlayer;
+import org.bukkit.ChatColor;
 
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -23,8 +24,9 @@ public final class ClanRepository {
                         "clanId INT(11) NOT NULL AUTO_INCREMENT, " +
                         "creator INT(11) NOT NULL, " +
                         "create_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(), " +
-                        "name VARCHAR(20) NOT NULL, " +
-                        "tag VARCHAR(4) NOT NULL," +
+                        "name VARCHAR(40) NOT NULL, " +
+                        "tag VARCHAR(20) NOT NULL, " +
+                        "tag_color VARCHAR(30) NOT NULL DEFAULT 'WHITE', " +
                         "PRIMARY KEY(clanId)" +
                         ")"
         );
@@ -61,13 +63,14 @@ public final class ClanRepository {
                 timestamp
         ).thenApply(result -> {
             try {
-                if (result.next()) {
+                if (result != null && result.next()) {
                     return Clan.create(
                             result.getInt(1),
                             creator.getPlayerId(),
                             timestamp,
                             name,
-                            tag
+                            tag,
+                            ChatColor.WHITE
                     );
                 }
                 return null;
@@ -96,6 +99,14 @@ public final class ClanRepository {
         );
     }
 
+    public CompletableFuture<Void> setTagColor(Clan clan, ChatColor color) {
+        return this.connection.update(
+                "UPDATE clans SET tag_color=? WHERE clanId=?",
+                color.name(),
+                clan.getClanId()
+        );
+    }
+
     public CompletableFuture<Void> setTag(Clan clan, String tag) {
         return this.connection.update(
                 "UPDATE clans SET tag=? WHERE clanId=?",
@@ -113,7 +124,8 @@ public final class ClanRepository {
                             result.getInt("creator"),
                             result.getTimestamp("create_date"),
                             result.getString("name"),
-                            result.getString("tag")
+                            result.getString("tag"),
+                            ChatColor.valueOf(result.getString("tag_color"))
                     );
                 }
                 return null;

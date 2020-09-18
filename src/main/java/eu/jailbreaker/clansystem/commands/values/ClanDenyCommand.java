@@ -28,7 +28,7 @@ public final class ClanDenyCommand extends ClanCommand {
                 this.messages.sendMessage(player, "no_invitation_received");
                 return;
             }
-            this.messages.sendMessage(player, "denied_invitation", clan.getName());
+            this.messages.sendMessage(player, "denied_invitation", clan.getDisplayName());
         });
     }
 }

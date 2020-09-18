@@ -1,13 +1,19 @@
 package eu.jailbreaker.clansystem.utils;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import eu.jailbreaker.clansystem.entities.ClanPlayer;
+import eu.jailbreaker.clansystem.entities.ClanRole;
 import eu.jailbreaker.clansystem.utils.player.PlayerUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.text.MessageFormat;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public final class Messages {
 
@@ -39,5 +45,17 @@ public final class Messages {
 
     public void commandUsage(Player player, String command) {
         this.utils.sendMessage(player, this.formatInput("command_usage", command));
+    }
+
+    public String accumulateClanMembers(List<ClanPlayer> players, ClanRole role, ChatColor nameColor) {
+        final Set<String> collect = players.stream()
+                .filter(member -> member.getRole() == role)
+                .map(ClanPlayer::getUniqueId)
+                .map(uuid -> "\n§8- " + nameColor.toString() + this.utils.getName(uuid))
+                .collect(Collectors.toSet());
+        if (collect.isEmpty()) {
+            return "\n§8- ";
+        }
+        return Joiner.on("").join(collect);
     }
 }

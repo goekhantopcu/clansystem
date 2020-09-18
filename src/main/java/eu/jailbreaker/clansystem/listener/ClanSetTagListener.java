@@ -23,11 +23,16 @@ public final class ClanSetTagListener implements Listener {
             }
         } else {
             final String suffix = clan.getName().equalsIgnoreCase("Team") ?
-                    " §7[§cTeam§7]" :
-                    " §7[§f" + clan.getTag() + "§7]";
-            player.setPlayerListName(
-                    player.getPlayerListName() + suffix
-            );
+                    " §8[§cTeam§8]" :
+                    " §8[" + clan.getDisplayTag() + "§8]";
+            if (this.plugin.getListNames().containsKey(player.getUniqueId())) {
+                player.setPlayerListName(this.plugin.getListNames().get(player.getUniqueId()) + suffix);
+            } else {
+                this.plugin.getListNames().put(player.getUniqueId(), player.getPlayerListName());
+                player.setPlayerListName(
+                        player.getPlayerListName() + suffix
+                );
+            }
         }
     }
 }

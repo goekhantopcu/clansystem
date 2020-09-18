@@ -32,6 +32,11 @@ public final class BaseClanCommand implements CommandExecutor {
             return true;
         }
 
+        if (args.length == 1 && (args[0].equals("1") || args[0].equals("2"))) {
+            player.performCommand("clan help " + args[0]);
+            return true;
+        }
+
         CompletableFuture.runAsync(() -> {
             final Optional<ClanCommand> optional = this.helper.find(args[0]);
             if (!optional.isPresent()) {

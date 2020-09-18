@@ -4,10 +4,13 @@ import com.google.inject.Inject;
 import eu.jailbreaker.clansystem.commands.ClanCommand;
 import eu.jailbreaker.clansystem.entities.Clan;
 import eu.jailbreaker.clansystem.entities.ClanPlayer;
+import eu.jailbreaker.clansystem.entities.ClanRole;
 import eu.jailbreaker.clansystem.utils.player.PlayerUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public final class ClanInfoCommand extends ClanCommand {
 
@@ -39,13 +42,16 @@ public final class ClanInfoCommand extends ClanCommand {
             return;
         }
 
+        final List<ClanPlayer> players = this.relationRepository.findPlayersByClan(clan).join();
         this.messages.sendMessage(
                 player,
                 "clan_info",
-                clan.getName(),
-                clan.getTag(),
-                this.utils.getName(this.playerRepository.find(clan.getCreator()).join().getUniqueId()),
-                this.formatter.format(clan.getTimestamp().toLocalDateTime())
+                clan.getDisplayName(),
+                clan.getDisplayTag(),
+                players.size(),
+                this.messages.accumulateClanMembers(players, ClanRole.OWNER, ChatColor.DARK_RED),
+                this.messages.accumulateClanMembers(players, ClanRole.MODERATOR, ChatColor.RED),
+                this.messages.accumulateClanMembers(players, ClanRole.USER, ChatColor.GRAY)
         );
     }
 }

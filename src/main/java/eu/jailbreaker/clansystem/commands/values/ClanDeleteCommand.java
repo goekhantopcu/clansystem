@@ -7,7 +7,6 @@ import eu.jailbreaker.clansystem.entities.ClanRole;
 import org.bukkit.entity.Player;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public final class ClanDeleteCommand extends ClanCommand {
 
@@ -40,10 +39,11 @@ public final class ClanDeleteCommand extends ClanCommand {
         }
 
         final List<ClanPlayer> clanPlayers = this.relationRepository.findPlayersByClan(clan).join();
-        this.clanRepository.delete(clan).whenComplete((unused, throwable) -> clanPlayers.forEach(member -> CompletableFuture.runAsync(() -> {
+        clanPlayers.forEach(member -> {
             this.messages.sendMessage(member.getUniqueId(), "clan_deleted");
             this.playerRepository.setRole(member, ClanRole.USER);
             this.plugin.callTagEvent(member.getUniqueId());
-        })));
+        });
+        this.clanRepository.delete(clan);
     }
 }
