@@ -1,0 +1,12 @@
+name: ClanSystem
+api-version: 1.8
+author: JailBreaker
+website: https://jailbreaker.eu
+version: 1.0.0
+load: POSTWORLD
+main: eu.jailbreaker.clansystem.ClanSystem
+
+commands:
+  clan:
+    aliases:
+      - clans

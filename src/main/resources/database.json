@@ -1,0 +1,5 @@
+{
+  "url": "jdbc:mysql://localhost/clans",
+  "username": "root",
+  "password": ""
+}
