@@ -32,14 +32,14 @@ public final class ClanRepository {
         );
     }
 
-    public CompletableFuture<Clan> find(Integer clanId) {
+    public CompletableFuture<Clan> findById(Integer clanId) {
         return this.fromResult(this.connection.execute(
                 "SELECT * FROM clans WHERE clanId=?",
                 clanId
         ));
     }
 
-    public CompletableFuture<Clan> find(String name) {
+    public CompletableFuture<Clan> findByName(String name) {
         return this.fromResult(this.connection.execute(
                 "SELECT * FROM clans WHERE name LIKE ?",
                 name

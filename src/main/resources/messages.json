@@ -44,6 +44,7 @@
   "help_title": "§8[§fClan§8] §fClan-Hilfe §8┃ §8(§f{0}§8/§f{1}§8)",
   "name_already_in_use": "§8[§fClan§8] §cDieser Name wird bereits verwendet!",
   "clan_not_exist": "§8[§fClan§8] §cDieser Clan existiert nicht!",
+  "target_not_in_clan": "§8[§fClan§8] §cDieser Spieler ist in keinem Clan",
   "successfully_set_tag_color": "§8[§fClan§8] §7Die Tag-Farbe von {0} ist nun {1}",
   "help_page_1": "§8/§fclan create §8● §7Erstelle einen Clan \n §8/§fclan rename §8● §7Benenne deinen Clan um \n §8/§fclan invite §8● §7Lade einen Spieler in den Clan ein \n §8/§fclan kick §8● §7Kicke einen Spieler aus deinem Clan \n §8/§fclan promote §8● §7Befördere einen Clan-Member \n §8/§fclan demote §8● §7Degradiere einen Clan-Mod \n §8/§fclan toggle §8● §7Stelle ein ob du Claneinladungen erhalten möchtest \n §8/§fclan party §8● §7Lade alle Clanmember in eine Party ein \n §8/§fclan leave §8● §7Verlasse einen Clan \n",
   "help_page_2": "§8/§fcc §8<§fNachricht§8> §8● §7Schreibe in den Clan-Chat \n §8/§fclan info §8● §7Informationen über deinen aktuellen Clan \n §8/§fclan uinfo §8● §7Informationen über den Clan eines Spielers \n §8/§fclan tinfo §8● §7Informationen über einen Clankürzel \n §8/§fclan delete §8● §7Lösche deinen Clan \n §8/§fclan join §8● §7Nimm eine Claneinladung an \n §8/§fclan deny §8● §7Lehne eine Claneinladung ab \n §8/§fclan jump §8● §7Springe einem Clanmitglied nach \n "

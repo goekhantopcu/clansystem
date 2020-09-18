@@ -3,16 +3,16 @@ package eu.jailbreaker.clansystem.listener;
 import com.google.inject.Inject;
 import eu.jailbreaker.clansystem.ClanSystem;
 import eu.jailbreaker.clansystem.entities.Clan;
-import eu.jailbreaker.clansystem.events.ClanSetTagEvent;
 import eu.jailbreaker.clansystem.repositories.PlayerRepository;
 import eu.jailbreaker.clansystem.repositories.RelationRepository;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+
+import java.util.UUID;
 
 public final class PlayerLoginListener implements Listener {
 
@@ -28,17 +28,16 @@ public final class PlayerLoginListener implements Listener {
     @EventHandler
     public void onPlayerLogin(PlayerLoginEvent event) {
         final Player player = event.getPlayer();
-        this.plugin.getListNames().put(player.getUniqueId(), player.getPlayerListName());
+        final UUID uniqueId = player.getUniqueId();
+        this.plugin.getListNames().put(uniqueId, player.getPlayerListName());
 
-        this.playerRepository.find(player.getUniqueId()).whenCompleteAsync((clanPlayer, throwable) -> {
+        this.playerRepository.findByUniqueId(uniqueId).whenCompleteAsync((clanPlayer, throwable) -> {
             if (clanPlayer == null) {
-                this.playerRepository.create(player.getUniqueId());
+                this.playerRepository.create(uniqueId);
             } else {
                 final Clan clan = this.relationRepository.findClanByPlayer(clanPlayer).join();
                 if (clan != null) {
-                    Bukkit.getScheduler().runTask(
-                            this.plugin, () -> Bukkit.getPluginManager().callEvent(new ClanSetTagEvent(clan, player))
-                    );
+                    this.plugin.callTagAddEvent(uniqueId, clan);
                 }
             }
         });

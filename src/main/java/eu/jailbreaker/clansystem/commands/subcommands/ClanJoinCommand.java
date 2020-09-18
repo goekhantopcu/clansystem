@@ -1,32 +1,32 @@
-package eu.jailbreaker.clansystem.commands.values;
+package eu.jailbreaker.clansystem.commands.subcommands;
 
 import eu.jailbreaker.clansystem.commands.ClanCommand;
 import eu.jailbreaker.clansystem.entities.ClanPlayer;
 import org.bukkit.entity.Player;
 
-import java.util.Collections;
 import java.util.List;
 
 public final class ClanJoinCommand extends ClanCommand {
 
     public ClanJoinCommand() {
-        super("join", Collections.singletonList("accept"));
+        super("join");
     }
 
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 1) {
-            this.messages.commandUsage(player, "join <Clan-Name>");
+            this.messages.sendCommandUsage(player, "join <Clan-Name>");
             return;
         }
 
-        final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
+        final ClanPlayer clanPlayer = this.playerRepository.findByUniqueId(player.getUniqueId()).join();
         if (clanPlayer == null) {
             this.messages.sendMessage(player, "error_occured");
             return;
         }
 
-        this.inviteRepository.accept(args[0], clanPlayer).whenCompleteAsync((clan, throwable) -> {
+        final String clanName = args[0];
+        this.inviteRepository.accept(clanName, clanPlayer).whenCompleteAsync((clan, throwable) -> {
             if (clan == null) {
                 this.messages.sendMessage(player, "no_invitation_received");
                 return;
@@ -39,7 +39,7 @@ public final class ClanJoinCommand extends ClanCommand {
                     player.getName()
             ));
             this.messages.sendMessage(player, "joined_clan", clan.getDisplayName());
-            this.plugin.callTagEvent(player, clan);
+            this.plugin.callTagAddEvent(player.getUniqueId(), clan);
         });
     }
 }

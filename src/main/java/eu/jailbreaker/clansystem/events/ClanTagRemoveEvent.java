@@ -1,6 +1,5 @@
 package eu.jailbreaker.clansystem.events;
 
-import eu.jailbreaker.clansystem.entities.Clan;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
@@ -9,11 +8,10 @@ import org.bukkit.event.HandlerList;
 
 @Getter
 @RequiredArgsConstructor
-public final class ClanSetTagEvent extends Event {
+public final class ClanTagRemoveEvent extends Event {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
-    private final Clan clan;
     private final Player player;
 
     public static HandlerList getHandlerList() {

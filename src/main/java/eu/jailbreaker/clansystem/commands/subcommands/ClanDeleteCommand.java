@@ -1,4 +1,4 @@
-package eu.jailbreaker.clansystem.commands.values;
+package eu.jailbreaker.clansystem.commands.subcommands;
 
 import eu.jailbreaker.clansystem.commands.ClanCommand;
 import eu.jailbreaker.clansystem.entities.Clan;
@@ -17,11 +17,11 @@ public final class ClanDeleteCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 0) {
-            this.messages.commandUsage(player, "delete");
+            this.messages.sendCommandUsage(player, "delete");
             return;
         }
 
-        final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
+        final ClanPlayer clanPlayer = this.playerRepository.findByUniqueId(player.getUniqueId()).join();
         if (clanPlayer == null) {
             this.messages.sendMessage(player, "error_occured");
             return;
@@ -42,7 +42,7 @@ public final class ClanDeleteCommand extends ClanCommand {
         clanPlayers.forEach(member -> {
             this.messages.sendMessage(member.getUniqueId(), "clan_deleted");
             this.playerRepository.setRole(member, ClanRole.USER);
-            this.plugin.callTagEvent(member.getUniqueId());
+            this.plugin.callTagRemoveEvent(member.getUniqueId());
         });
         this.clanRepository.delete(clan);
     }

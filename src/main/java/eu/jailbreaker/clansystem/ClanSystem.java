@@ -6,18 +6,19 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import eu.jailbreaker.clansystem.commands.BaseClanCommand;
 import eu.jailbreaker.clansystem.commands.ClanChatCommand;
-import eu.jailbreaker.clansystem.commands.ClanHelper;
+import eu.jailbreaker.clansystem.commands.ClanCommandRegistry;
 import eu.jailbreaker.clansystem.db.ClanModule;
 import eu.jailbreaker.clansystem.entities.Clan;
-import eu.jailbreaker.clansystem.events.ClanSetTagEvent;
-import eu.jailbreaker.clansystem.listener.ClanSetTagListener;
+import eu.jailbreaker.clansystem.events.ClanTagAddEvent;
+import eu.jailbreaker.clansystem.events.ClanTagRemoveEvent;
+import eu.jailbreaker.clansystem.listener.ClanTagListener;
 import eu.jailbreaker.clansystem.listener.PlayerLoginListener;
 import eu.jailbreaker.clansystem.repositories.ClanRepository;
 import eu.jailbreaker.clansystem.repositories.InviteRepository;
 import eu.jailbreaker.clansystem.repositories.PlayerRepository;
 import eu.jailbreaker.clansystem.repositories.RelationRepository;
 import lombok.Getter;
-import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -39,7 +40,8 @@ public final class ClanSystem extends JavaPlugin {
         final Injector injector = Guice.createInjector(new ClanModule(this));
 
         this.closer = injector.getInstance(Closer.class);
-        injector.getInstance(ClanHelper.class).loadCommands(injector);
+
+        injector.getInstance(ClanCommandRegistry.class).loadCommands(injector);
 
         injector.getInstance(ClanRepository.class).createTable();
         injector.getInstance(PlayerRepository.class).createTable();
@@ -50,7 +52,7 @@ public final class ClanSystem extends JavaPlugin {
         this.getCommand("clan").setExecutor(injector.getInstance(BaseClanCommand.class));
 
         this.getServer().getPluginManager().registerEvents(
-                injector.getInstance(ClanSetTagListener.class),
+                injector.getInstance(ClanTagListener.class),
                 this
         );
         this.getServer().getPluginManager().registerEvents(
@@ -68,28 +70,34 @@ public final class ClanSystem extends JavaPlugin {
         }
     }
 
-    public void callTagEvent(UUID uniqueId) {
-        this.callTagEvent(uniqueId, null);
-    }
+    public void callTagRemoveEvent(UUID uniqueId) {
+        final Server server = this.getServer();
+        final Player player = server.getPlayer(uniqueId);
+        if (player == null) {
+            return;
+        }
 
-    public void callTagEvent(UUID uniqueId, Clan clan) {
-        if (this.getServer().isPrimaryThread()) {
-            this.callTagEvent(Bukkit.getPlayer(uniqueId));
+        if (server.isPrimaryThread()) {
+            server.getPluginManager().callEvent(new ClanTagRemoveEvent(player));
         } else {
-            this.getServer().getScheduler().runTask(this, () -> this.callTagEvent(Bukkit.getPlayer(uniqueId)));
+            server.getScheduler().runTask(
+                    this, () -> server.getPluginManager().callEvent(new ClanTagRemoveEvent(player))
+            );
         }
     }
 
-    public void callTagEvent(Player player) {
-        this.callTagEvent(player, null);
-    }
+    public void callTagAddEvent(UUID uniqueId, Clan clan) {
+        final Server server = this.getServer();
+        final Player player = server.getPlayer(uniqueId);
+        if (player == null) {
+            return;
+        }
 
-    public void callTagEvent(Player player, Clan clan) {
-        if (this.getServer().isPrimaryThread()) {
-            this.getServer().getPluginManager().callEvent(new ClanSetTagEvent(clan, player));
+        if (server.isPrimaryThread()) {
+            server.getPluginManager().callEvent(new ClanTagAddEvent(clan, player));
         } else {
-            this.getServer().getScheduler().runTask(
-                    this, () -> this.getServer().getPluginManager().callEvent(new ClanSetTagEvent(clan, player))
+            server.getScheduler().runTask(
+                    this, () -> server.getPluginManager().callEvent(new ClanTagAddEvent(clan, player))
             );
         }
     }

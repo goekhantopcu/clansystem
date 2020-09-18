@@ -15,10 +15,10 @@ import java.util.logging.Level;
 public final class DatabaseConnection implements Closeable {
 
     @Inject
-    private Connection connection;
+    private ClanSystem plugin;
 
     @Inject
-    private ClanSystem plugin;
+    private Connection connection;
 
     public boolean isNotConnected() {
         return this.connection == null;
@@ -45,7 +45,6 @@ public final class DatabaseConnection implements Closeable {
             this.plugin.getLogger().log(Level.SEVERE, "No active connection!");
             return CompletableFuture.completedFuture(null);
         }
-
         return CompletableFuture.supplyAsync(() -> {
             try {
                 final PreparedStatement statement = this.connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);

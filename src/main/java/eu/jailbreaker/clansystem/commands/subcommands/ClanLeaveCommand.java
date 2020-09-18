@@ -1,4 +1,4 @@
-package eu.jailbreaker.clansystem.commands.values;
+package eu.jailbreaker.clansystem.commands.subcommands;
 
 import eu.jailbreaker.clansystem.commands.ClanCommand;
 import eu.jailbreaker.clansystem.entities.Clan;
@@ -17,11 +17,11 @@ public final class ClanLeaveCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 0) {
-            this.messages.commandUsage(player, "leave");
+            this.messages.sendCommandUsage(player, "leave");
             return;
         }
 
-        final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
+        final ClanPlayer clanPlayer = this.playerRepository.findByUniqueId(player.getUniqueId()).join();
         if (clanPlayer == null) {
             this.messages.sendMessage(player, "error_occured");
             return;
@@ -40,12 +40,11 @@ public final class ClanLeaveCommand extends ClanCommand {
 
         this.relationRepository.delete(clan, clanPlayer).whenCompleteAsync((unused, throwable) -> {
             final List<ClanPlayer> players = this.relationRepository.findPlayersByClan(clan).join();
-            players.forEach(member ->
-                    this.messages.sendMessage(member.getUniqueId(), "user_left", player.getName())
+            players.forEach(
+                    member -> this.messages.sendMessage(member.getUniqueId(), "user_left", player.getName())
             );
             this.messages.sendMessage(player, "clan_left");
-
-            this.plugin.callTagEvent(player);
+            this.plugin.callTagRemoveEvent(player.getUniqueId());
         });
     }
 }

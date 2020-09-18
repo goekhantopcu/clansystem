@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 public final class ClanChatCommand implements CommandExecutor {
 
     @Inject
-    private ClanHelper helper;
+    private ClanCommandRegistry helper;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -19,10 +19,7 @@ public final class ClanChatCommand implements CommandExecutor {
         }
 
         final Player player = (Player) sender;
-
-        helper.find("chat").ifPresent(
-                subCommand -> subCommand.execute(player, args)
-        );
+        this.helper.findCommand("chat").ifPresent(subCommand -> subCommand.execute(player, args));
         return true;
     }
 }

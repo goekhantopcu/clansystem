@@ -64,7 +64,7 @@ public final class RelationRepository {
             try {
                 while (result.next()) {
                     final int playerId = result.getInt(1);
-                    final ClanPlayer clanPlayer = this.playerRepository.find(playerId).join();
+                    final ClanPlayer clanPlayer = this.playerRepository.findById(playerId).join();
                     if (clanPlayer != null) {
                         players.add(clanPlayer);
                     }

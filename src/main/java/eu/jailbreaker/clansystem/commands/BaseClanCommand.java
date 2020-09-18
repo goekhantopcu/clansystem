@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 public final class BaseClanCommand implements CommandExecutor {
 
     @Inject
-    private ClanHelper helper;
+    private ClanCommandRegistry helper;
 
     @Inject
     private PlayerUtils utils;
@@ -28,26 +28,31 @@ public final class BaseClanCommand implements CommandExecutor {
 
         final Player player = (Player) sender;
         if (args.length == 0) {
-            this.helper.find("help").ifPresent(subCommand -> subCommand.execute(player));
+            this.helper.findCommand("help").ifPresent(subCommand -> subCommand.execute(player));
             return true;
         }
 
-        if (args.length == 1 && (args[0].equals("1") || args[0].equals("2"))) {
-            player.performCommand("clan help " + args[0]);
+        final String subCommandName = args[0];
+        if (args.length == 1 && (subCommandName.equals("1") || subCommandName.equals("2"))) {
+            player.performCommand("clan help " + subCommandName);
             return true;
         }
 
         CompletableFuture.runAsync(() -> {
-            final Optional<ClanCommand> optional = this.helper.find(args[0]);
-            if (!optional.isPresent()) {
-                this.helper.find("help").ifPresent(subCommand -> subCommand.execute(player));
-                return;
+            try {
+                final Optional<ClanCommand> optional = this.helper.findCommand(subCommandName);
+                if (!optional.isPresent()) {
+                    this.helper.findCommand("help").ifPresent(subCommand -> subCommand.execute(player));
+                    return;
+                }
+                String[] arguments = {};
+                if (args.length > 1) {
+                    arguments = Arrays.copyOfRange(args, 1, args.length);
+                }
+                optional.get().execute(player, arguments);
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
             }
-            String[] arguments = {};
-            if (args.length > 1) {
-                arguments = Arrays.copyOfRange(args, 1, args.length);
-            }
-            optional.get().execute(player, arguments);
         });
         return true;
     }

@@ -1,4 +1,4 @@
-package eu.jailbreaker.clansystem.commands.values;
+package eu.jailbreaker.clansystem.commands.subcommands;
 
 import com.google.inject.Inject;
 import eu.jailbreaker.clansystem.commands.ClanCommand;
@@ -27,25 +27,26 @@ public final class ClanUInfoCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 1) {
-            this.messages.commandUsage(player, "uinfo <Spieler>");
+            this.messages.sendCommandUsage(player, "uinfo <Spieler>");
             return;
         }
 
-        if (args[0].equalsIgnoreCase(player.getName())) {
-            this.messages.sendMessage(player, "§cVerwende /clan info!");
+        final String targetName = args[0];
+        if (targetName.equalsIgnoreCase(player.getName())) {
+            this.messages.sendMessage(player, "cant_interact_self");
             return;
         }
 
-        final UUID uniqueId = this.utils.getUniqueId(args[0]);
+        final UUID uniqueId = this.utils.getUniqueId(targetName);
         if (uniqueId == null) {
             this.messages.sendMessage(player, "player_does_not_exist");
             return;
         }
 
-        final ClanPlayer targetPlayer = this.playerRepository.find(uniqueId).join();
+        final ClanPlayer targetPlayer = this.playerRepository.findByUniqueId(uniqueId).join();
         final Clan clan = this.relationRepository.findClanByPlayer(targetPlayer).join();
         if (clan == null) {
-            this.messages.sendMessage(player, "§cDieser Spieler ist in keinem Clan!");
+            this.messages.sendMessage(player, "target_not_in_clan");
             return;
         }
 

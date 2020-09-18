@@ -1,4 +1,4 @@
-package eu.jailbreaker.clansystem.commands.values;
+package eu.jailbreaker.clansystem.commands.subcommands;
 
 import com.google.inject.Inject;
 import eu.jailbreaker.clansystem.commands.ClanCommand;
@@ -22,16 +22,17 @@ public final class ClanKickCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 1) {
-            this.messages.commandUsage(player, "kick <Spieler>");
+            this.messages.sendCommandUsage(player, "kick <Spieler>");
             return;
         }
 
-        if (args[0].equalsIgnoreCase(player.getName())) {
+        final String targetName = args[0];
+        if (targetName.equalsIgnoreCase(player.getName())) {
             this.messages.sendMessage(player, "cant_interact_self");
             return;
         }
 
-        final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
+        final ClanPlayer clanPlayer = this.playerRepository.findByUniqueId(player.getUniqueId()).join();
         if (clanPlayer == null) {
             this.messages.sendMessage(player, "error_occured");
             return;
@@ -48,13 +49,13 @@ public final class ClanKickCommand extends ClanCommand {
             return;
         }
 
-        final UUID uniqueId = this.utils.getUniqueId(args[0]);
+        final UUID uniqueId = this.utils.getUniqueId(targetName);
         if (uniqueId == null) {
             this.messages.sendMessage(player, "player_does_not_exist");
             return;
         }
 
-        final ClanPlayer targetPlayer = this.playerRepository.find(uniqueId).join();
+        final ClanPlayer targetPlayer = this.playerRepository.findByUniqueId(uniqueId).join();
         if (targetPlayer == null) {
             this.messages.sendMessage(player, "player_does_not_exist");
             return;
@@ -72,9 +73,9 @@ public final class ClanKickCommand extends ClanCommand {
         }
 
         this.relationRepository.delete(clan, targetPlayer).whenComplete((unused, throwable) -> {
-            this.messages.sendMessage(args[0], "got_kicked", clan.getDisplayName());
-            this.messages.sendMessage(player, "kicked_player", args[0]);
-            this.plugin.callTagEvent(uniqueId);
+            this.messages.sendMessage(targetName, "got_kicked", clan.getDisplayName());
+            this.messages.sendMessage(player, "kicked_player", targetName);
+            this.plugin.callTagRemoveEvent(uniqueId);
         });
     }
 }

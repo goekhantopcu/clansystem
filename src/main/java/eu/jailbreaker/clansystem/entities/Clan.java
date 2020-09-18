@@ -16,7 +16,6 @@ public final class Clan {
 
     private final Integer clanId;
     private final Integer creator;
-
     private final Timestamp timestamp;
 
     private String name;
@@ -28,6 +27,9 @@ public final class Clan {
     }
 
     public String getDisplayTag() {
+        if (this.name.equalsIgnoreCase("team")) {
+            return ChatColor.RED + this.name;
+        }
         return this.color.toString() + this.tag;
     }
 

@@ -1,5 +1,6 @@
-package eu.jailbreaker.clansystem.commands.values;
+package eu.jailbreaker.clansystem.commands.subcommands;
 
+import com.google.common.base.Joiner;
 import eu.jailbreaker.clansystem.commands.ClanCommand;
 import eu.jailbreaker.clansystem.entities.Clan;
 import eu.jailbreaker.clansystem.entities.ClanPlayer;
@@ -17,11 +18,11 @@ public final class ClanChatCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length == 0) {
-            this.messages.commandUsage(player, "chat <Nachricht>");
+            this.messages.sendCommandUsage(player, "chat <Nachricht>");
             return;
         }
 
-        final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
+        final ClanPlayer clanPlayer = this.playerRepository.findByUniqueId(player.getUniqueId()).join();
         if (clanPlayer == null) {
             this.messages.sendMessage(player, "error_occured");
             return;
@@ -33,17 +34,14 @@ public final class ClanChatCommand extends ClanCommand {
             return;
         }
 
-        final StringBuilder builder = new StringBuilder();
-        for (String arg : args) {
-            if (builder.length() != 0) {
-                builder.append(" ");
-            }
-            builder.append(arg);
-        }
-
         final List<ClanPlayer> players = this.relationRepository.findPlayersByClan(clan).join();
         players.forEach(member -> CompletableFuture.runAsync(() ->
-                this.messages.sendMessage(member.getUniqueId(), "clan_chat_format", player.getName(), builder.toString())
+                this.messages.sendMessage(
+                        member.getUniqueId(),
+                        "clan_chat_format",
+                        player.getName(),
+                        Joiner.on(" ").join(args)
+                )
         ));
     }
 }

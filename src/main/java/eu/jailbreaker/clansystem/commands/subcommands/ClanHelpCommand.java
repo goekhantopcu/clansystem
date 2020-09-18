@@ -1,4 +1,4 @@
-package eu.jailbreaker.clansystem.commands.values;
+package eu.jailbreaker.clansystem.commands.subcommands;
 
 import eu.jailbreaker.clansystem.commands.ClanCommand;
 import org.bukkit.entity.Player;
@@ -12,7 +12,8 @@ public final class ClanHelpCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length == 1) {
-            if (args[0].equals("2")) {
+            final String pageId = args[0];
+            if (pageId.equals("2")) {
                 this.sendHelp(player, 1);
             } else {
                 this.sendHelp(player, 0);

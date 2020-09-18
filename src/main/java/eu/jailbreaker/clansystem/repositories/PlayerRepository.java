@@ -36,14 +36,14 @@ public final class PlayerRepository {
         );
     }
 
-    public CompletableFuture<ClanPlayer> find(UUID uniqueId) {
+    public CompletableFuture<ClanPlayer> findByUniqueId(UUID uniqueId) {
         return this.fromResult(this.connection.execute(
                 "SELECT * FROM players WHERE uniqueId=?",
                 uniqueId.toString()
         ));
     }
 
-    public CompletableFuture<ClanPlayer> find(Integer playerId) {
+    public CompletableFuture<ClanPlayer> findById(Integer playerId) {
         return this.fromResult(this.connection.execute(
                 "SELECT * FROM players WHERE playerId=?",
                 playerId
@@ -94,20 +94,16 @@ public final class PlayerRepository {
                 clan.getClanId(),
                 clanPlayer.getPlayerId()
         ).exceptionally(throwable -> {
-            try {
-                this.connection.update(
-                        "UPDATE clan_player_relation SET clanId=? WHERE playerId=?",
-                        clan.getClanId(),
-                        clanPlayer.getPlayerId()
-                );
-            } catch (Throwable throwable1) {
-                throwable1.printStackTrace();
-            }
+            this.connection.update(
+                    "UPDATE clan_player_relation SET clanId=? WHERE playerId=?",
+                    clan.getClanId(),
+                    clanPlayer.getPlayerId()
+            );
             return null;
         }).whenComplete((unused, throwable) -> this.setRole(clanPlayer, role));
     }
 
-    public CompletionStage<Void> setReceiveInvitations(ClanPlayer clanPlayer) {
+    public CompletionStage<Void> updateReceiveInvitations(ClanPlayer clanPlayer) {
         return this.connection.update(
                 "UPDATE players SET receive_invitations=? WHERE playerId=?",
                 !clanPlayer.isReceiveInvitations(),

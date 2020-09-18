@@ -1,4 +1,4 @@
-package eu.jailbreaker.clansystem.commands.values;
+package eu.jailbreaker.clansystem.commands.subcommands;
 
 import eu.jailbreaker.clansystem.commands.ClanCommand;
 import eu.jailbreaker.clansystem.entities.Clan;
@@ -16,11 +16,11 @@ public final class ClanCreateCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 2) {
-            this.messages.commandUsage(player, "create <Name> <Tag>");
+            this.messages.sendCommandUsage(player, "create <Name> <Tag>");
             return;
         }
 
-        final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
+        final ClanPlayer clanPlayer = this.playerRepository.findByUniqueId(player.getUniqueId()).join();
         if (clanPlayer == null) {
             this.messages.sendMessage(player, "error_occured");
             return;
@@ -32,8 +32,8 @@ public final class ClanCreateCommand extends ClanCommand {
             return;
         }
 
-        final String tag = args[1];
         final String name = args[0];
+        final String tag = args[1];
 
         if (!PatternMatcher.TAG.matches(tag)) {
             this.messages.sendMessage(player, "invalid_tag");
@@ -53,6 +53,6 @@ public final class ClanCreateCommand extends ClanCommand {
 
         this.playerRepository.setClan(clanPlayer, clan, ClanRole.OWNER);
         this.messages.sendMessage(player, "clan_created", clan.getDisplayName(), clan.getDisplayTag());
-        this.plugin.callTagEvent(player, clan);
+        this.plugin.callTagAddEvent(player.getUniqueId(), clan);
     }
 }

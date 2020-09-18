@@ -1,4 +1,4 @@
-package eu.jailbreaker.clansystem.commands.values;
+package eu.jailbreaker.clansystem.commands.subcommands;
 
 import eu.jailbreaker.clansystem.commands.ClanCommand;
 import eu.jailbreaker.clansystem.entities.Clan;
@@ -15,11 +15,11 @@ public final class ClanRenameCommand extends ClanCommand {
     @Override
     public void execute(Player player, String... args) {
         if (args.length != 1) {
-            this.messages.commandUsage(player, "rename <Name>");
+            this.messages.sendCommandUsage(player, "rename <Name>");
             return;
         }
 
-        final ClanPlayer clanPlayer = this.playerRepository.find(player.getUniqueId()).join();
+        final ClanPlayer clanPlayer = this.playerRepository.findByUniqueId(player.getUniqueId()).join();
         if (clanPlayer == null) {
             this.messages.sendMessage(player, "error_occured");
             return;
@@ -36,19 +36,20 @@ public final class ClanRenameCommand extends ClanCommand {
             return;
         }
 
-        if (!PatternMatcher.NAME.matches(args[0])) {
+        final String newClanName = args[0];
+        if (!PatternMatcher.NAME.matches(newClanName)) {
             this.messages.sendMessage(player, "invalid_name");
             return;
         }
 
-        final Clan otherClan = this.clanRepository.find(args[0]).join();
+        final Clan otherClan = this.clanRepository.findByName(newClanName).join();
         if (otherClan != null) {
             this.messages.sendMessage(player, "name_already_in_use");
             return;
         }
 
-        this.clanRepository.rename(clan, args[0]).whenComplete(
-                (unused, throwable) -> this.messages.sendMessage(player, "changed_clan_name", args[0])
+        this.clanRepository.rename(clan, newClanName).whenComplete(
+                (unused, throwable) -> this.messages.sendMessage(player, "changed_clan_name", newClanName)
         );
     }
 }

@@ -1,4 +1,4 @@
-package eu.jailbreaker.clansystem.commands.values;
+package eu.jailbreaker.clansystem.commands.subcommands;
 
 import com.google.inject.Inject;
 import eu.jailbreaker.clansystem.commands.ClanCommand;
@@ -12,27 +12,33 @@ import org.bukkit.entity.Player;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public final class ClanTInfoCommand extends ClanCommand {
+public final class ClanInfoCommand extends ClanCommand {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
     @Inject
     private PlayerUtils utils;
 
-    public ClanTInfoCommand() {
-        super("tinfo");
+    public ClanInfoCommand() {
+        super("info");
     }
 
     @Override
     public void execute(Player player, String... args) {
-        if (args.length != 1) {
-            this.messages.commandUsage(player, "tinfo <Clan-Tag>");
+        if (args.length != 0) {
+            this.messages.sendCommandUsage(player, "info");
             return;
         }
 
-        final Clan clan = this.clanRepository.findByTag(args[0]).join();
+        final ClanPlayer clanPlayer = this.playerRepository.findByUniqueId(player.getUniqueId()).join();
+        if (clanPlayer == null) {
+            this.messages.sendMessage(player, "error_occured");
+            return;
+        }
+
+        final Clan clan = this.relationRepository.findClanByPlayer(clanPlayer).join();
         if (clan == null) {
-            this.messages.sendMessage(player, "§cDieser Clan existiert nicht!");
+            this.messages.sendMessage(player, "not_in_clan");
             return;
         }
 

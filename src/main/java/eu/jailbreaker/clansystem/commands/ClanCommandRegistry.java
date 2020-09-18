@@ -9,13 +9,12 @@ import eu.jailbreaker.clansystem.ClanSystem;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import static com.google.common.reflect.ClassPath.ClassInfo;
 import static com.google.common.reflect.ClassPath.from;
 
 @Singleton
-public final class ClanHelper {
+public final class ClanCommandRegistry {
 
     private final List<ClanCommand> commands = Lists.newArrayList();
 
@@ -25,7 +24,7 @@ public final class ClanHelper {
     public void loadCommands(Injector injector) {
         try {
             final ImmutableSet<ClassInfo> classes = from(this.plugin.getClass().getClassLoader())
-                    .getTopLevelClasses("eu.jailbreaker.clansystem.commands.values");
+                    .getTopLevelClasses("eu.jailbreaker.clansystem.commands.subcommands");
             for (ClassInfo info : classes) {
                 final Class<?> clazz = info.load();
                 final Object instance = injector.getInstance(clazz);
@@ -38,15 +37,7 @@ public final class ClanHelper {
         }
     }
 
-    public Optional<ClanCommand> find(String name) {
+    public Optional<ClanCommand> findCommand(String name) {
         return this.commands.stream().filter(command -> command.getName().equalsIgnoreCase(name)).findFirst();
-    }
-
-    private Predicate<? super ClanCommand> predicate(String input) {
-        return command -> command.getName().equalsIgnoreCase(input) ||
-                (
-                        command.getAliases() != null &&
-                                command.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(input))
-                );
     }
 }

@@ -43,7 +43,7 @@ public final class Messages {
         this.utils.sendMessage(name, this.formatInput(path, replacement));
     }
 
-    public void commandUsage(Player player, String command) {
+    public void sendCommandUsage(Player player, String command) {
         this.utils.sendMessage(player, this.formatInput("command_usage", command));
     }
 
