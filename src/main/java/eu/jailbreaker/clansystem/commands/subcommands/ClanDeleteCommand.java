@@ -42,7 +42,7 @@ public final class ClanDeleteCommand extends ClanCommand {
         clanPlayers.forEach(member -> {
             this.messages.sendMessage(member.getUniqueId(), "clan_deleted");
             this.playerRepository.setRole(member, ClanRole.USER);
-            this.plugin.callTagRemoveEvent(member.getUniqueId());
+            this.plugin.removeClanTag(member.getUniqueId());
         });
         this.clanRepository.delete(clan);
     }

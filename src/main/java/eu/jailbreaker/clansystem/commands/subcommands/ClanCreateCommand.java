@@ -53,6 +53,6 @@ public final class ClanCreateCommand extends ClanCommand {
 
         this.playerRepository.setClan(clanPlayer, clan, ClanRole.OWNER);
         this.messages.sendMessage(player, "clan_created", clan.getDisplayName(), clan.getDisplayTag());
-        this.plugin.callTagAddEvent(player.getUniqueId(), clan);
+        this.plugin.setClanTag(player, clan);
     }
 }

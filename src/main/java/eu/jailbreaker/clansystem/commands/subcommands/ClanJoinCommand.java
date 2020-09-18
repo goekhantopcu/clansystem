@@ -39,7 +39,7 @@ public final class ClanJoinCommand extends ClanCommand {
                     player.getName()
             ));
             this.messages.sendMessage(player, "joined_clan", clan.getDisplayName());
-            this.plugin.callTagAddEvent(player.getUniqueId(), clan);
+            this.plugin.setClanTag(player, clan);
         });
     }
 }

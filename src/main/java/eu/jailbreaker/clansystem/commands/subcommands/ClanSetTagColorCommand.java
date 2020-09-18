@@ -52,10 +52,9 @@ public final class ClanSetTagColorCommand extends ClanCommand {
                 );
 
                 final List<ClanPlayer> members = this.relationRepository.findPlayersByClan(clan).join();
-                members.forEach(member -> CompletableFuture.runAsync(() -> {
-                    this.plugin.callTagRemoveEvent(member.getUniqueId());
-                    this.plugin.callTagAddEvent(member.getUniqueId(), clan);
-                }));
+                members.forEach(
+                        member -> CompletableFuture.runAsync(() -> this.plugin.setClanTag(member.getUniqueId(), clan))
+                );
             });
         } catch (IllegalArgumentException e) {
             this.messages.sendMessage(player, "following_colors_exist", this.formattedColors);

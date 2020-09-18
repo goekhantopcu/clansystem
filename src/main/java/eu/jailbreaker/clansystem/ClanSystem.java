@@ -9,16 +9,12 @@ import eu.jailbreaker.clansystem.commands.ClanChatCommand;
 import eu.jailbreaker.clansystem.commands.ClanCommandRegistry;
 import eu.jailbreaker.clansystem.db.ClanModule;
 import eu.jailbreaker.clansystem.entities.Clan;
-import eu.jailbreaker.clansystem.events.ClanTagAddEvent;
-import eu.jailbreaker.clansystem.events.ClanTagRemoveEvent;
-import eu.jailbreaker.clansystem.listener.ClanTagListener;
 import eu.jailbreaker.clansystem.listener.PlayerLoginListener;
 import eu.jailbreaker.clansystem.repositories.ClanRepository;
 import eu.jailbreaker.clansystem.repositories.InviteRepository;
 import eu.jailbreaker.clansystem.repositories.PlayerRepository;
 import eu.jailbreaker.clansystem.repositories.RelationRepository;
 import lombok.Getter;
-import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -52,10 +48,6 @@ public final class ClanSystem extends JavaPlugin {
         this.getCommand("clan").setExecutor(injector.getInstance(BaseClanCommand.class));
 
         this.getServer().getPluginManager().registerEvents(
-                injector.getInstance(ClanTagListener.class),
-                this
-        );
-        this.getServer().getPluginManager().registerEvents(
                 injector.getInstance(PlayerLoginListener.class),
                 this
         );
@@ -70,35 +62,37 @@ public final class ClanSystem extends JavaPlugin {
         }
     }
 
-    public void callTagRemoveEvent(UUID uniqueId) {
-        final Server server = this.getServer();
-        final Player player = server.getPlayer(uniqueId);
+    public void setClanTag(Player player, Clan clan) {
         if (player == null) {
             return;
         }
+        this.removeClanTag(player);
 
-        if (server.isPrimaryThread()) {
-            server.getPluginManager().callEvent(new ClanTagRemoveEvent(player));
-        } else {
-            server.getScheduler().runTask(
-                    this, () -> server.getPluginManager().callEvent(new ClanTagRemoveEvent(player))
-            );
+        final UUID uniqueId = player.getUniqueId();
+        final String suffix = " §8[" + clan.getDisplayTag() + "§8]";
+        String listName = this.listNames.get(uniqueId);
+        if (listName == null) {
+            listName = player.getPlayerListName();
+            this.listNames.put(uniqueId, listName);
         }
+        player.setPlayerListName(listName + suffix);
     }
 
-    public void callTagAddEvent(UUID uniqueId, Clan clan) {
-        final Server server = this.getServer();
-        final Player player = server.getPlayer(uniqueId);
+    public void setClanTag(UUID uniqueId, Clan clan) {
+        this.setClanTag(this.getServer().getPlayer(uniqueId), clan);
+    }
+
+    public void removeClanTag(Player player) {
         if (player == null) {
             return;
         }
+        final String listName = this.listNames.containsKey(player.getUniqueId()) ?
+                this.listNames.get(player.getUniqueId()) :
+                player.getPlayerListName();
+        player.setPlayerListName(listName);
+    }
 
-        if (server.isPrimaryThread()) {
-            server.getPluginManager().callEvent(new ClanTagAddEvent(clan, player));
-        } else {
-            server.getScheduler().runTask(
-                    this, () -> server.getPluginManager().callEvent(new ClanTagAddEvent(clan, player))
-            );
-        }
+    public void removeClanTag(UUID uniqueId) {
+        this.removeClanTag(this.getServer().getPlayer(uniqueId));
     }
 }

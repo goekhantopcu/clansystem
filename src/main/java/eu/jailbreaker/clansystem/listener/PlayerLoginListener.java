@@ -37,7 +37,7 @@ public final class PlayerLoginListener implements Listener {
             } else {
                 final Clan clan = this.relationRepository.findClanByPlayer(clanPlayer).join();
                 if (clan != null) {
-                    this.plugin.callTagAddEvent(uniqueId, clan);
+                    this.plugin.setClanTag(player, clan);
                 }
             }
         });

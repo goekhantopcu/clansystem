@@ -44,7 +44,7 @@ public final class ClanLeaveCommand extends ClanCommand {
                     member -> this.messages.sendMessage(member.getUniqueId(), "user_left", player.getName())
             );
             this.messages.sendMessage(player, "clan_left");
-            this.plugin.callTagRemoveEvent(player.getUniqueId());
+            this.plugin.removeClanTag(player);
         });
     }
 }
