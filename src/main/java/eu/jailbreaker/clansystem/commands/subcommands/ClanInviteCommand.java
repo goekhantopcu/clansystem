@@ -7,6 +7,9 @@ import eu.jailbreaker.clansystem.entities.ClanInvite;
 import eu.jailbreaker.clansystem.entities.ClanPlayer;
 import eu.jailbreaker.clansystem.entities.ClanRole;
 import eu.jailbreaker.clansystem.utils.player.PlayerUtils;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -88,8 +91,35 @@ public final class ClanInviteCommand extends ClanCommand {
                 clan,
                 targetPlayer
         ).whenComplete((unused, throwable) -> {
-            this.messages.sendMessage(targetName, "received_invitation", clan.getDisplayName());
+            this.sendReceiveInvitation(targetName, clan.getName(), clan.getDisplayName());
             this.messages.sendMessage(player, "invited_player", targetName);
         });
+    }
+
+    private void sendReceiveInvitation(String name, String clanName, String clanDisplayName) {
+        final Player target = Bukkit.getPlayerExact(name);
+        if (target != null) {
+            final String invitation = this.messages.formatInput("received_invitation", clanDisplayName);
+            final TextComponent component = new TextComponent(invitation);
+            final TextComponent accept = new TextComponent(this.messages.formatInput("received_invitation_accept"));
+            accept.setClickEvent(new ClickEvent(
+                    ClickEvent.Action.RUN_COMMAND,
+                    "/clan join " + clanName
+            ));
+            final TextComponent deny = new TextComponent(this.messages.formatInput("received_invitation_deny"));
+            deny.setClickEvent(new ClickEvent(
+                    ClickEvent.Action.RUN_COMMAND,
+                    "/clan deny " + clanName
+            ));
+            final String splitter = this.messages.formatInput("received_invitation_splitter");
+            final TextComponent concat = new TextComponent(this.messages.formatInput("received_invitation_title"));
+            concat.addExtra(accept);
+            concat.addExtra(splitter);
+            concat.addExtra(deny);
+            target.spigot().sendMessage(component);
+            target.spigot().sendMessage(concat);
+        } else {
+            this.messages.sendMessage(name, "received_invitation", clanDisplayName);
+        }
     }
 }

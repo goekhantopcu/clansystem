@@ -40,6 +40,7 @@ public final class RelationRepository {
         );
     }
 
+
     public CompletableFuture<Clan> findClanByPlayer(ClanPlayer clanPlayer) {
         try {
             return this.clanRepository.fromResult(this.connection.execute(
@@ -51,7 +52,7 @@ public final class RelationRepository {
             ));
         } catch (Throwable throwable) {
             throwable.printStackTrace();
-            return null;
+            return CompletableFuture.completedFuture(null);
         }
     }
 

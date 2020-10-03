@@ -24,7 +24,7 @@ public final class Messages {
     @Named("messages")
     private Configuration messages;
 
-    private String formatInput(String path, Object... replacement) {
+    public String formatInput(String path, Object... replacement) {
         return ChatColor.translateAlternateColorCodes(
                 '&',
                 MessageFormat.format(this.messages.getString(path), replacement)

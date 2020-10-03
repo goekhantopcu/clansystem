@@ -71,7 +71,7 @@
                         <version>3.2.0</version>
                         <configuration>
                             <outputDirectory>
-                                C:\Users\Artillero\Desktop\Minecraft\Server\Localhost\plugins
+                                C:\Users\Artillero\Desktop\Minecraft\Localhost\plugins
                             </outputDirectory>
                         </configuration>
                     </plugin>
